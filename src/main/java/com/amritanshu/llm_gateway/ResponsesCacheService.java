@@ -1,6 +1,7 @@
 package com.amritanshu.llm_gateway;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
+@Slf4j
 @Service
 public class ResponsesCacheService {
 
@@ -26,6 +28,7 @@ public class ResponsesCacheService {
                     try {
                         return Mono.just(objectMapper.readValue(json, ResponsesResponse.class));
                     } catch (Exception e) {
+                        log.warn("Error reading from cache", e);
                         return Mono.empty(); // corrupt cache entry → treat as miss
                     }
                 });
@@ -36,6 +39,7 @@ public class ResponsesCacheService {
             String json = objectMapper.writeValueAsString(response);
             return redisTemplate.opsForValue().set(key, json, TTL).then();
         } catch (Exception e) {
+            log.warn("Error writing to cache", e);
             return Mono.empty(); // cache write failure should never break the request
         }
     }

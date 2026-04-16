@@ -1,16 +1,15 @@
 package com.amritanshu.llm_gateway;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@Slf4j
 public class ResponsesService {
     private final OpenAiClient openAiClient;         // your M1 WebClient wrapper
     private final ResponsesCacheService cache;
     private final CacheKeyGenerator keyGenerator;
-    private static final Logger log = LoggerFactory.getLogger(ResponsesService.class);
 
     public ResponsesService(OpenAiClient openAiClient, ResponsesCacheService cache, CacheKeyGenerator keyGenerator) {
         this.openAiClient = openAiClient;
