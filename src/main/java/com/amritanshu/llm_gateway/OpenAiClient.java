@@ -3,21 +3,16 @@ package com.amritanshu.llm_gateway;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@RestController
-@RequestMapping("/v1")
-public class ChatResponseController {
+@Service
+public class OpenAiClient {
 
     private final WebClient webClient;
 
-    public ChatResponseController(@Value("${openai.apikey}") String apiKey) {
+    public OpenAiClient(@Value("${openai.apikey}") String apiKey) {
         this.webClient = WebClient.builder()
                 .baseUrl("https://api.openai.com")
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
@@ -25,12 +20,12 @@ public class ChatResponseController {
                 .build();
     }
 
-    @PostMapping("/responses")
-    public Mono<ResponseEntity<String>> forward(@RequestBody String body) {
+
+    public Mono<ResponsesResponse> complete(ResponsesRequest request) {
         return webClient.post()
                 .uri("/v1/responses")
-                .bodyValue(body)
+                .bodyValue(request)
                 .retrieve()
-                .toEntity(String.class);
+                .bodyToMono(ResponsesResponse.class); // no ResponseEntity wrapper
     }
 }
